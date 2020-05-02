@@ -1,0 +1,97 @@
+matrix:
+  fast_finish: true
+  allow_failures:
+  - env: JOB=APK
+  - env: JOB=IPA
+  include:
+  - env: JOB=PR
+    os: linux
+    sudo: false
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - libstdc++6
+        - lib32stdc++6
+    before_script:
+    - git clone https://github.com/flutter/flutter.git -b beta --depth 1
+    - export PATH=`pwd`/flutter/bin:`pwd`/flutter/bin/cache/dart-sdk/bin:$PATH
+    script:
+    - flutter doctor -v
+  - env: JOB=APK
+    os: linux
+    language: android
+    licenses:
+    - android-sdk-preview-license-.+
+    - android-sdk-license-.+
+    - google-gdk-license-.+
+    android:
+      components:
+      - tools
+      - platform-tools
+      - build-tools-28.0.3
+      - build-tools-27.0.3
+      - android-28
+      - android-27
+      - sys-img-armeabi-v7a-google_apis-28
+      - extra-android-m2repository
+      - extra-google-m2repository
+      - extra-google-android-support
+    jdk: oraclejdk8
+    sudo: false
+    addons:
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - libstdc++6
+        - lib32stdc++6
+    before_script:
+    - wget https://services.gradle.org/distributions/gradle-5.3.1-bin.zip
+    - unzip -qq gradle-5.3.1-bin.zip
+    - export GRADLE_HOME=$PWD/gradle-5.3.1
+    - export PATH=$GRADLE_HOME/bin:$PATH
+    - git clone https://github.com/flutter/flutter.git
+    - export PATH=`pwd`/flutter/bin:`pwd`/flutter/bin/cache/dart-sdk/bin:$PATH
+    - flutter doctor -v
+    before_deploy:
+    - git config --local user.name "SlashGordon"
+    - git config --local user.email "slash.gordon.dev@gmail.com"
+    - export TRAVIS_TAG=v1.0.0
+    - git tag $TRAVIS_TAG
+    - setup/build_release.sh
+    deploy:
+      provider: releases
+      api_key:
+        secure: CRqZz22oGTI6yVCvA9GqaIO4/jSF/JKDSGh4hDwMndBhyHCRnBwgrRE0I1v2Dt+A2o4N8nDv+XyYamQEK8Z6qd+EYwRR//hQOI29aaTsHsODgwsCfNy8iEuJK6RwYr8G3EdzwSA5BiArRnjLvTW4p5QieNahoT1JQZIyr4+KnOHei8qpZvK7ustgAsQ/2E4PzdXym+ImvFnDDv4UX38lhPamSR5gtzyTLGse4H+M0fb+ocFlUenjKpCkWM1j25uV0hzK6/z6cxAy4JG7DxNEJ1P5RmDujEz7bYRVItazEtvYiljoIyWIptc6pT8qCASIO8eNRa7HcA2leNNpSWsDYTyJ8c25ree++30GJjtXj/J2duQNvq9ZMHTgpoqlCeOGz1gTZL6GRomoH/744Lebx56WRBH5130/M6cCIXTdB47l1WMmle+5tz/gX1a36d4LaFgPp3Re7OLl++PcITcf0q1AySvoY2Qe664WZ38vhqqDW+Z149xAekAayc9xuvhU9GnWje9BL+J8lmAx8yQml1oKDLkLs4YfmhnmAp7TQjs7k/cAOXy2jZukpMO9FD4kMfAIvFi4nkCRBESG8qPxgOBWefQGymFZ1LbF9xhzaGdzSxJFn9DNe/1/kgN3gyzGf6WtsoAmY3HpFTpUm/ZyrDf2djurDYyJLKRG0e5zv/s=
+      file: build/app/outputs/flutter-apk/app-release.apk
+      skip_cleanup: true
+      on:
+        all_branches: true
+  - env: JOB=IPA
+    os: osx
+    language: generic
+    osx_image: xcode10.2
+    before_script:
+    - pip3 install six
+    - brew update
+    - brew install --HEAD usbmuxd
+    - brew unlink usbmuxd
+    - brew link usbmuxd
+    - brew install --HEAD libimobiledevice
+    - brew install ideviceinstaller
+    - brew install ios-deploy
+    - git clone https://github.com/flutter/flutter.git
+    - export PATH=`pwd`/flutter/bin:`pwd`/flutter/bin/cache/dart-sdk/bin:$PATH
+    - cd example
+    - flutter doctor -v
+    script:
+    - flutter -v build ios --no-codesign
+cache:
+  directories:
+  - "$HOME/.pub-cache"
+before_install:
+- openssl aes-256-cbc -K $encrypted_b0276278eb46_key -iv $encrypted_b0276278eb46_iv
+  -in setup.tar.gz.enc -out setup.tar.gz -d
+- tar xvf setup.tar.gz

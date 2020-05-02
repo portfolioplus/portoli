@@ -1,0 +1,11 @@
+const String PORTFOLIO_PERF_KEY = '_portfolio';
+const String PORTFOLIO_HIST_KEY = '_history_expand';
+const String PORTFOLIO_ANALYSIS_KEY = '_analysis_expand';
+const String PORTFOLIO_COUNT_KEY = '_country_expand';
+const String PORTFOLIO_VALUE_KEY = '_value_expand';
+const String PORTFOLIO_DIVIDEND_VALUE_KEY = '_dividend_value_expand';
+const String PORTFOLIO_DIVIDEND_KEY = '_dividend_expand';
+const String PORTFOLIO_INDU_KEY = '_indu_expand';
+const String PORTFOLIO_INDX_KEY = '_indx_expand';
+const String ALLOWED_STRATEGIES_KEY = '_allowed_strategies';
+const String PORTFOLIO_DIVERS_KEY = '_divers_expand';
