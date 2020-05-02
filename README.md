@@ -9,5 +9,7 @@ This is a little stock portfolio manager with analysis functions like levermann 
 The app uses firebase as backend and provides login and cloud sync features.
 
 ![1](assets/1.jpg)
+
 ![2](assets/2.jpg)
+
 ![3](assets/3.jpg)

@@ -19,7 +19,7 @@ import 'package:portoli/routes.dart' as router;
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PrefService.init(prefix: 'pref_');
-  var defaultValues = Map.fromIterable(INDICES + INDUSTRIES + COUNTRIES,
+  var defaultValues = Map<String, dynamic>.fromIterable(INDICES + INDUSTRIES + COUNTRIES,
       key: (v) => v, value: (v) => true);
   defaultValues[SET_SYNC] = false;
   PrefService.setDefaultValues(defaultValues);

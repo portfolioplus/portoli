@@ -15,8 +15,13 @@ matrix:
         - libstdc++6
         - lib32stdc++6
     before_script:
-    - git clone https://github.com/flutter/flutter.git -b beta --depth 1
-    - export PATH=`pwd`/flutter/bin:`pwd`/flutter/bin/cache/dart-sdk/bin:$PATH
+    - FLUTTER_CHANNEL=stable
+    - FLUTTER_VERSION=1.12.13+hotfix.9-${FLUTTER_CHANNEL}
+    - wget --quiet --output-document=flutter.tar.xz https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_v${FLUTTER_VERSION}.tar.xz
+      && tar xf flutter.tar.xz > /dev/null && rm flutter.tar.xz
+    - export PATH="$PATH":"$HOME/.pub-cache/bin"
+    - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
+    - flutter doctor -v
     script:
     - flutter doctor -v
   - env: JOB=APK
@@ -52,23 +57,29 @@ matrix:
     - unzip -qq gradle-5.3.1-bin.zip
     - export GRADLE_HOME=$PWD/gradle-5.3.1
     - export PATH=$GRADLE_HOME/bin:$PATH
-    - git clone https://github.com/flutter/flutter.git
-    - export PATH=`pwd`/flutter/bin:`pwd`/flutter/bin/cache/dart-sdk/bin:$PATH
+    - FLUTTER_CHANNEL=stable
+    - FLUTTER_VERSION=1.12.13+hotfix.9-${FLUTTER_CHANNEL}
+    - wget --quiet --output-document=flutter.tar.xz https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_v${FLUTTER_VERSION}.tar.xz
+      && tar xf flutter.tar.xz > /dev/null && rm flutter.tar.xz
+    - export PATH="$PATH":"$HOME/.pub-cache/bin"
+    - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
     - flutter doctor -v
+    script:
+    - setup/build_release.sh
     before_deploy:
     - git config --local user.name "SlashGordon"
     - git config --local user.email "slash.gordon.dev@gmail.com"
     - export TRAVIS_TAG=v1.0.0
     - git tag $TRAVIS_TAG
-    - setup/build_release.sh
+    - mv build/app/outputs/apk/release/app-release.apk portoli-${TRAVIS_TAG}.apk
     deploy:
       provider: releases
       api_key:
         secure: CRqZz22oGTI6yVCvA9GqaIO4/jSF/JKDSGh4hDwMndBhyHCRnBwgrRE0I1v2Dt+A2o4N8nDv+XyYamQEK8Z6qd+EYwRR//hQOI29aaTsHsODgwsCfNy8iEuJK6RwYr8G3EdzwSA5BiArRnjLvTW4p5QieNahoT1JQZIyr4+KnOHei8qpZvK7ustgAsQ/2E4PzdXym+ImvFnDDv4UX38lhPamSR5gtzyTLGse4H+M0fb+ocFlUenjKpCkWM1j25uV0hzK6/z6cxAy4JG7DxNEJ1P5RmDujEz7bYRVItazEtvYiljoIyWIptc6pT8qCASIO8eNRa7HcA2leNNpSWsDYTyJ8c25ree++30GJjtXj/J2duQNvq9ZMHTgpoqlCeOGz1gTZL6GRomoH/744Lebx56WRBH5130/M6cCIXTdB47l1WMmle+5tz/gX1a36d4LaFgPp3Re7OLl++PcITcf0q1AySvoY2Qe664WZ38vhqqDW+Z149xAekAayc9xuvhU9GnWje9BL+J8lmAx8yQml1oKDLkLs4YfmhnmAp7TQjs7k/cAOXy2jZukpMO9FD4kMfAIvFi4nkCRBESG8qPxgOBWefQGymFZ1LbF9xhzaGdzSxJFn9DNe/1/kgN3gyzGf6WtsoAmY3HpFTpUm/ZyrDf2djurDYyJLKRG0e5zv/s=
-      file: build/app/outputs/flutter-apk/app-release.apk
+      file: portoli-${TRAVIS_TAG}.apk
       skip_cleanup: true
       on:
-        all_branches: true
+        branch: master
   - env: JOB=IPA
     os: osx
     language: generic
