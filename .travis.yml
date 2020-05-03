@@ -1,29 +1,9 @@
+env:
+  global:
+  - TRAVIS_TAG=v1.0.0
 matrix:
   fast_finish: true
-  allow_failures:
-  - env: JOB=APK
-  - env: JOB=IPA
   include:
-  - env: JOB=PR
-    os: linux
-    sudo: false
-    addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - libstdc++6
-        - lib32stdc++6
-    before_script:
-    - FLUTTER_CHANNEL=stable
-    - FLUTTER_VERSION=1.12.13+hotfix.9-${FLUTTER_CHANNEL}
-    - wget --quiet --output-document=flutter.tar.xz https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_v${FLUTTER_VERSION}.tar.xz
-      && tar xf flutter.tar.xz > /dev/null && rm flutter.tar.xz
-    - export PATH="$PATH":"$HOME/.pub-cache/bin"
-    - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
-    - flutter doctor -v
-    script:
-    - flutter doctor -v
   - env: JOB=APK
     os: linux
     language: android
@@ -59,31 +39,17 @@ matrix:
     - export PATH=$GRADLE_HOME/bin:$PATH
     - FLUTTER_CHANNEL=stable
     - FLUTTER_VERSION=1.12.13+hotfix.9-${FLUTTER_CHANNEL}
-    - wget --quiet --output-document=flutter.tar.xz https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_v${FLUTTER_VERSION}.tar.xz
-      && tar xf flutter.tar.xz > /dev/null && rm flutter.tar.xz
+    - wget --quiet --output-document=flutter.tar.xz https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_v${FLUTTER_VERSION}.tar.xz && tar xf flutter.tar.xz > /dev/null && rm flutter.tar.xz
     - export PATH="$PATH":"$HOME/.pub-cache/bin"
     - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
     - flutter doctor -v
     script:
-    - setup/build_release.sh
-    before_deploy:
-    - git config --local user.name "SlashGordon"
-    - git config --local user.email "slash.gordon.dev@gmail.com"
-    - export TRAVIS_TAG=v1.0.0
-    - git tag $TRAVIS_TAG
+    - setup/build_release_android.sh
     - mv build/app/outputs/apk/release/app-release.apk portoli-${TRAVIS_TAG}.apk
-    deploy:
-      provider: releases
-      api_key:
-        secure: CRqZz22oGTI6yVCvA9GqaIO4/jSF/JKDSGh4hDwMndBhyHCRnBwgrRE0I1v2Dt+A2o4N8nDv+XyYamQEK8Z6qd+EYwRR//hQOI29aaTsHsODgwsCfNy8iEuJK6RwYr8G3EdzwSA5BiArRnjLvTW4p5QieNahoT1JQZIyr4+KnOHei8qpZvK7ustgAsQ/2E4PzdXym+ImvFnDDv4UX38lhPamSR5gtzyTLGse4H+M0fb+ocFlUenjKpCkWM1j25uV0hzK6/z6cxAy4JG7DxNEJ1P5RmDujEz7bYRVItazEtvYiljoIyWIptc6pT8qCASIO8eNRa7HcA2leNNpSWsDYTyJ8c25ree++30GJjtXj/J2duQNvq9ZMHTgpoqlCeOGz1gTZL6GRomoH/744Lebx56WRBH5130/M6cCIXTdB47l1WMmle+5tz/gX1a36d4LaFgPp3Re7OLl++PcITcf0q1AySvoY2Qe664WZ38vhqqDW+Z149xAekAayc9xuvhU9GnWje9BL+J8lmAx8yQml1oKDLkLs4YfmhnmAp7TQjs7k/cAOXy2jZukpMO9FD4kMfAIvFi4nkCRBESG8qPxgOBWefQGymFZ1LbF9xhzaGdzSxJFn9DNe/1/kgN3gyzGf6WtsoAmY3HpFTpUm/ZyrDf2djurDYyJLKRG0e5zv/s=
-      file: portoli-${TRAVIS_TAG}.apk
-      skip_cleanup: true
-      on:
-        branch: master
   - env: JOB=IPA
     os: osx
     language: generic
-    osx_image: xcode10.2
+    osx_image: xcode11.3
     before_script:
     - pip3 install six
     - brew update
@@ -93,12 +59,15 @@ matrix:
     - brew install --HEAD libimobiledevice
     - brew install ideviceinstaller
     - brew install ios-deploy
-    - git clone https://github.com/flutter/flutter.git
-    - export PATH=`pwd`/flutter/bin:`pwd`/flutter/bin/cache/dart-sdk/bin:$PATH
-    - cd example
+    - FLUTTER_CHANNEL=stable
+    - FLUTTER_VERSION=1.12.13+hotfix.9-${FLUTTER_CHANNEL}
+    - wget --quiet --output-document=flutter.zip https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/macos/flutter_macos_v${FLUTTER_VERSION}.zip && unzip -qq flutter.zip > /dev/null && rm flutter.zip
+    - export PATH="$PATH":"$HOME/.pub-cache/bin"
+    - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
     - flutter doctor -v
     script:
-    - flutter -v build ios --no-codesign
+    - setup/build_release_ios.sh
+    - mv portoli.ipa portoli-${TRAVIS_TAG}.ipa
 cache:
   directories:
   - "$HOME/.pub-cache"
@@ -106,3 +75,18 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_b0276278eb46_key -iv $encrypted_b0276278eb46_iv
   -in setup.tar.gz.enc -out setup.tar.gz -d
 - tar xvf setup.tar.gz
+before_deploy:
+  - git config --local user.name "SlashGordon"
+  - git config --local user.email "slash.gordon.dev@gmail.com"
+  - git tag $TRAVIS_TAG || true
+deploy:
+  provider: releases
+  api_key:
+    secure: CRqZz22oGTI6yVCvA9GqaIO4/jSF/JKDSGh4hDwMndBhyHCRnBwgrRE0I1v2Dt+A2o4N8nDv+XyYamQEK8Z6qd+EYwRR//hQOI29aaTsHsODgwsCfNy8iEuJK6RwYr8G3EdzwSA5BiArRnjLvTW4p5QieNahoT1JQZIyr4+KnOHei8qpZvK7ustgAsQ/2E4PzdXym+ImvFnDDv4UX38lhPamSR5gtzyTLGse4H+M0fb+ocFlUenjKpCkWM1j25uV0hzK6/z6cxAy4JG7DxNEJ1P5RmDujEz7bYRVItazEtvYiljoIyWIptc6pT8qCASIO8eNRa7HcA2leNNpSWsDYTyJ8c25ree++30GJjtXj/J2duQNvq9ZMHTgpoqlCeOGz1gTZL6GRomoH/744Lebx56WRBH5130/M6cCIXTdB47l1WMmle+5tz/gX1a36d4LaFgPp3Re7OLl++PcITcf0q1AySvoY2Qe664WZ38vhqqDW+Z149xAekAayc9xuvhU9GnWje9BL+J8lmAx8yQml1oKDLkLs4YfmhnmAp7TQjs7k/cAOXy2jZukpMO9FD4kMfAIvFi4nkCRBESG8qPxgOBWefQGymFZ1LbF9xhzaGdzSxJFn9DNe/1/kgN3gyzGf6WtsoAmY3HpFTpUm/ZyrDf2djurDYyJLKRG0e5zv/s=
+  file:
+    - portoli-${TRAVIS_TAG}.apk
+    - portoli-${TRAVIS_TAG}.ipa
+  skip_cleanup: true
+  on:
+    branch: master
+    tags: true
