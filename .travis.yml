@@ -1,6 +1,6 @@
 env:
   global:
-  - TRAVIS_TAG=v1.0.0
+  - TRAVIS_TAG=v1.0.2
 matrix:
   fast_finish: true
   include:
@@ -46,28 +46,28 @@ matrix:
     script:
     - setup/build_release_android.sh
     - mv build/app/outputs/apk/release/app-release.apk portoli-${TRAVIS_TAG}.apk
-  - env: JOB=IPA
-    os: osx
-    language: generic
-    osx_image: xcode11.4
-    before_script:
-    - pip3 install six
-    - brew update
-    - brew install --HEAD usbmuxd
-    - brew unlink usbmuxd
-    - brew link usbmuxd
-    - brew install --HEAD libimobiledevice
-    - brew install ideviceinstaller
-    - brew install ios-deploy
-    - FLUTTER_CHANNEL=stable
-    - FLUTTER_VERSION=1.12.13+hotfix.9-${FLUTTER_CHANNEL}
-    - wget --quiet --output-document=flutter.zip https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/macos/flutter_macos_v${FLUTTER_VERSION}.zip && unzip -qq flutter.zip > /dev/null && rm flutter.zip
-    - export PATH="$PATH":"$HOME/.pub-cache/bin"
-    - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
-    - flutter doctor -v
-    script:
-    - setup/build_release_ios.sh
-    - mv portoli.ipa portoli-${TRAVIS_TAG}.ipa
+  # - env: JOB=IPA
+  #   os: osx
+  #   language: generic
+  #   osx_image: xcode11.4
+  #   before_script:
+  #   - pip3 install six
+  #   - brew update
+  #   - brew install --HEAD usbmuxd
+  #   - brew unlink usbmuxd
+  #   - brew link usbmuxd
+  #   - brew install --HEAD libimobiledevice
+  #   - brew install ideviceinstaller
+  #   - brew install ios-deploy
+  #   - FLUTTER_CHANNEL=stable
+  #   - FLUTTER_VERSION=1.12.13+hotfix.9-${FLUTTER_CHANNEL}
+  #   - wget --quiet --output-document=flutter.zip https://storage.googleapis.com/flutter_infra/releases/${FLUTTER_CHANNEL}/macos/flutter_macos_v${FLUTTER_VERSION}.zip && unzip -qq flutter.zip > /dev/null && rm flutter.zip
+  #   - export PATH="$PATH":"$HOME/.pub-cache/bin"
+  #   - export PATH=$PWD/flutter/bin:$PWD/flutter/bin/cache/dart-sdk/bin:$PATH
+  #   - flutter doctor -v
+  #   script:
+  #   - setup/build_release_ios.sh
+  #   - mv portoli.ipa portoli-${TRAVIS_TAG}.ipa
 cache:
   directories:
   - "$HOME/.pub-cache"
