@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/portfolioplus/portoli_app.svg?branch=master)](https://travis-ci.org/portfolioplus/portoli_app)
+[![Build Status](https://travis-ci.org/portfolioplus/portoli.svg?branch=master)](https://travis-ci.org/portfolioplus/portoli)
 
 <img src="assets/icon/icon.png" alt="drawing" class="center" style="width:200px;"/>
 
