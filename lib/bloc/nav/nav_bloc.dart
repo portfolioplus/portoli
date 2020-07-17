@@ -130,7 +130,7 @@ class NavBloc extends Bloc<NavEvent, NavState> {
       showDialog(
         context: event.context,
         builder: (ctxt) => AboutDialog(
-          applicationVersion: '1.0.0',
+          applicationVersion: '1.0.3',
           applicationIcon: Image.asset('assets/icon/icon.png', height: 100),
         ),
       );

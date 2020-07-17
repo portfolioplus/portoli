@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,11 +10,10 @@ class NavigationService {
   }
 
   bool goBack() {
-    return navigatorKey.currentState.pop();
+    navigatorKey.currentState.pop();
+    return true;
   }
 }
-
-
 
 GetIt locator = GetIt.instance;
 
